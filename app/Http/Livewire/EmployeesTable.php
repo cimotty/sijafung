@@ -10,14 +10,25 @@ class EmployeesTable extends Component
     public $pegawai_id, $nama, $NIP, $jabatan, $unitKerja;
     public $search;
 
+    // Atribut CRUD
     public $isModalCreate = false;  
     public $isModalUpdate = false;  
     public $isModalDelete = false;
     public $isModalImport = false;
+    // 
 
+    // Atribut Filter
     public $filter;
     public $sortBy = 'nama';
     public $sortDirection = 'asc';
+    // 
+
+    // Atribut Select
+    public $selectedRows = [];
+    public $employees;
+    public $selectPageRows;
+    public $deleteType = 'single';
+    // 
 
     public function render()
     {
@@ -70,8 +81,10 @@ class EmployeesTable extends Component
 
     public function openModalDelete($id)
     {
+        $this->deleteType = 'single';
         $this->isModalDelete = true;
         $this->pegawai_id = $id;
+        $this->dispatchBrowserEvent('show-delete-modal');
     }
 
     public function openModalImport()
@@ -93,6 +106,7 @@ class EmployeesTable extends Component
     public function closeModalDelete()
     {
         $this->isModalDelete = false;
+        $this->reset(['deleteType', 'pegawai_id']);
     }
 
     public function ConfirmCreate()
@@ -108,6 +122,7 @@ class EmployeesTable extends Component
         $this->jabatan = '';
         $this->unitKerja = '';
     }
+    
     public function store()
     {
         $validatedData = $this->validate([
@@ -119,7 +134,7 @@ class EmployeesTable extends Component
 
         Employee::updateOrCreate(['id' => $this->pegawai_id], $validatedData);
 
-        session()->flash('message', 'Data Pegawai Berhasil Ditambahkan');
+        session()->flash('success', 'Data Pegawai Berhasil Ditambahkan');
 
         $this->closeModalCreate();
         $this->resetInputFields();
@@ -144,38 +159,52 @@ class EmployeesTable extends Component
                 'unitKerja' => $this->UpdateunitKerja,
             ]);
 
-            session()->flash('message', 'Data Pegawai Berhasil Diupdate');
+            session()->flash('success', 'Data Pegawai Berhasil Diupdate');
             $this->closeModalUpdate();
         }
     }
 
     public function delete(){
         Employee::find($this->pegawai_id)->delete();
-        session()->flash('message', 'Data Pegawai Berhasil Dihapus');
+        session()->flash('success', 'Data Pegawai Berhasil Dihapus');
         $this->closeModalDelete();
     }
     
-    public function confirmDeleteSelectedRows()
+
+    // Selected
+    public function mount()
     {
-        $selectedIds = $this->selectedRows;
+        $this->loadEmployees();
+    }
 
-        if (count($selectedIds) > 0) {
-            // Lakukan penghapusan item yang dipilih
-            foreach ($selectedIds as $id) {
-                $employee = Employee::find($id);
-                if ($employee) {
-                    $employee->delete();
-                }
-            }
+    public function loadEmployees()
+    {
+        $this->employees = Employee::all();
+    }
 
-            // Kosongkan kembali selectedRows setelah menghapus
-            $this->selectedRows = [];
-            
-            // Tampilkan pesan sukses atau sesuai kebutuhan
-            session()->flash('message', 'Data pegawai yang dipilih berhasil dihapus.');
+    public function updatedSelectPageRows($value)
+    {
+        if ($value) {
+            $this->selectedRows = $this->employees->pluck('id')->map(function ($id) {
+                return (string) $id;
+            });
         } else {
-            // Tampilkan pesan bahwa tidak ada item yang dipilih
-            session()->flash('message', 'Tidak ada data pegawai yang dipilih untuk dihapus.');
+            $this->reset(['selectedRows', 'selectPageRows']);
         }
     }
+
+    public function confirmDeleteSelectedRows()
+    {
+        $this->deleteType = 'multiple';
+        $this->isModalDelete = true;
+        $this->dispatchBrowserEvent('show-delete-modal');
+    }
+
+    public function deleteSelectedRows()
+    {
+        Employee::whereIn('id', $this->selectedRows)->delete();
+        session()->flash('success', 'Data pegawai yang dipilih berhasil dihapus');
+        $this->closeModalDelete();
+    }
+    // 
 }

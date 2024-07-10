@@ -7,12 +7,6 @@
                     @include('partials.alert-error')
                 </div> --}}
 
-                @if (session()->has('message'))
-                    <div class="alert alert-success">
-                        {{ session('message') }}
-                    </div>
-                @endif
-
                 {{-- Head Table --}}
                 <div class="row align-items-center mx-3 mt-4 mb-3">
                     <div class="col-md-3 mb-2 mb-md-0">
@@ -35,7 +29,7 @@
 
                     <div class="dropdown-center d-grid col-md-1 mb-2 mb-md-0 me-md-5 me-lg-5 me-xl-4">
                         <button class="btn btn-sm btn-light border dropdown-toggle rounded-3 p-2" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                                data-bs-toggle="dropdown" aria-expanded="false" @if (empty($selectedRows)) disabled @endif>   
                             Aksi Massal
                         </button>
                         <ul class="dropdown-menu">
@@ -63,7 +57,9 @@
                             <tr>
                                 <th scope="col" class="text-center ps-4">
                                     <div class="form-check">
-                                        <input wire:model="selectPageRows" class="form-check-input focus-ring focus-ring-light" type="checkbox" style="cursor: pointer">
+                                        <input wire:model="selectPageRows"
+                                            class="form-check-input focus-ring focus-ring-light" type="checkbox"
+                                            value="" id="" style="cursor: pointer">
                                     </div>
                                 </th>
 
@@ -173,8 +169,9 @@
                 {{-- Import Modal --}}
                 @include('partials.import')
 
-                {{-- Alert Success --}}
-                {{-- @include('partials.alert-success') --}}
+                @if (session()->has('success'))
+                    @include('partials.alert-success')
+                @endif
             </div>
         </div>
     </div>
