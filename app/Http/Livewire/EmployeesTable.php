@@ -4,11 +4,17 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Employee;
+use App\Imports\EmployeesImport;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeesTable extends Component
 {
     public $pegawai_id, $nama, $NIP, $jabatan, $unitKerja;
     public $search;
+    use WithPagination;
+    public $perPage = 25;
 
     // Atribut CRUD
     public $isModalCreate = false;  
@@ -28,7 +34,22 @@ class EmployeesTable extends Component
     public $employees;
     public $selectPageRows;
     public $deleteType = 'single';
-    // 
+    //
+    
+    // Atribut Import
+    public $fileImport;
+    use WithFileUploads;
+    //
+    
+
+    protected $updatesQueryString = [
+        'perPage' => ['except' => 25],
+    ];
+
+    public function updatedPerPage($value)
+    {
+        $this->resetPage();
+    }
 
     public function render()
     {
@@ -47,7 +68,7 @@ class EmployeesTable extends Component
             $query->orderBy($this->sortBy, $this->sortDirection);
         }
 
-        $employee = $query->paginate(10); 
+        $employee = $query->paginate($this->perPage);
 
         return view('livewire.employees-table', ['employee' => $employee]);
     }
@@ -206,5 +227,24 @@ class EmployeesTable extends Component
         session()->flash('success', 'Data pegawai yang dipilih berhasil dihapus');
         $this->closeModalDelete();
     }
-    // 
+    //
+    
+
+    public function closeModalImport()
+    {
+        $this->isModalImport = false;
+    }
+
+    public function importItems()
+    {
+        $this->validate([
+            'fileImport' => 'required|file|mimes:xlsx,xls', 
+        ]);
+
+        Excel::import(new EmployeesImport, $this->fileImport->getRealPath());
+
+        session()->flash('success', 'Data berhasil diimport.');
+
+        $this->closeModalImport();
+    }
 }

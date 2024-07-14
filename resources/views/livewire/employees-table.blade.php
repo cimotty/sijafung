@@ -121,23 +121,23 @@
                         </thead>
 
                         <tbody>
-                            @forelse ($employee as $index => $employee)
+                            @forelse ($employee as $index => $employees)
                                 <tr class="align-middle">
                                     <td class="text-center ps-4">
                                         <div class="form-check">
-                                            <input wire:model="selectedRows" class="form-check-input focus-ring focus-ring-light" type="checkbox" value="{{ $employee->id }}" id="employee_{{ $employee->id }}" style="cursor: pointer">
+                                            <input wire:model="selectedRows" class="form-check-input focus-ring focus-ring-light" type="checkbox" value="{{ $employees->id }}" id="employees_{{ $employees->id }}" style="cursor: pointer">
                                         </div>
                                     </td>
-                                    <td class="text-center">{{ $index + 1 }}</td>
-                                    <td>{{ $employee->nama }}</td>
-                                    <td class="text-center">{{ $employee->NIP }}</td>
-                                    <td class="text-center">{{ $employee->jabatan }}</td>
-                                    <td class="text-center">{{ $employee->unitKerja }}</td>
+                                    <td class="text-center">{{ ($employee->currentPage() - 1) * $employee->perPage() + $loop->iteration }}</td>
+                                    <td>{{ $employees->nama }}</td>
+                                    <td class="text-center">{{ $employees->NIP }}</td>
+                                    <td class="text-center">{{ $employees->jabatan }}</td>
+                                    <td class="text-center">{{ $employees->unitKerja }}</td>
                                     <td class="text-center">
-                                        <button wire:click="openModalUpdate({{ $employee->id }})" type="button" class="btn btn-sm btn-outline-primary rounded-3 py-1 px-2 my-1 ms-1" data-bs-toggle="modal" data-bs-target="#updateModal">
+                                        <button wire:click="openModalUpdate({{ $employees->id }})" type="button" class="btn btn-sm btn-outline-primary rounded-3 py-1 px-2 my-1 ms-1" data-bs-toggle="modal" data-bs-target="#updateModal">
                                             <i class="fa-regular fa-pen-to-square"></i>
                                         </button>
-                                        <button wire:click.prevent="openModalDelete({{ $employee->id }})" type="button" class="btn btn-sm btn-outline-danger rounded-3 py-1 px-2 my-1 ms-1">
+                                        <button wire:click.prevent="openModalDelete({{ $employees->id }})" type="button" class="btn btn-sm btn-outline-danger rounded-3 py-1 px-2 my-1 ms-1">
                                             <i class="fa-regular fa-trash-can"></i>
                                         </button>
                                     </td>
@@ -149,10 +149,12 @@
                             @endforelse
                         </tbody>
                     </table>
+                    {{ $employee->links('vendor.livewire.bootstrap') }}
                 </div>
 
-                {{-- Paginate --}}
-                {{-- {{ $items->links() }} --}}
+                <div>
+                </div>
+
 
                 {{-- CRUD Modal & Offcanvas --}}
                 @if($isModalCreate)
@@ -167,7 +169,10 @@
                 @include('partials.read-off-canvas')
 
                 {{-- Import Modal --}}
-                @include('partials.import')
+                @if($isModalImport)
+                    @include('partials.import')
+                @endif
+                
 
                 @if (session()->has('success'))
                     @include('partials.alert-success')

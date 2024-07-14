@@ -17,7 +17,7 @@
 <body class="d-flex flex-column min-vh-100 bg-body-tertiary">
     <nav class="navbar navbar-expand-sm sticky-top bg-white border-bottom">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="/items">
+            <a class="navbar-brand fw-semibold" href="/">
                 <img src="{{ asset('img/bengkulu-logo.png') }}" class="img-fluid" style="width: 50px" alt="">
                 SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional
             </a>
