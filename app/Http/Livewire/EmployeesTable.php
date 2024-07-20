@@ -148,9 +148,15 @@ class EmployeesTable extends Component
     {
         $validatedData = $this->validate([
             'nama' => 'required',
-            'NIP' => 'required',
+            'NIP' => 'required|unique:employee',
             'jabatan' => 'required',
             'unitKerja' => 'required',
+        ],[
+            'nama.required' => 'Nama harus diisi',
+            'NIP.required' => 'NIP harus diisi',
+            'NIP.unique' => 'NIP sudah ada',
+            'jabatan.required' => 'Jabatan harus diisi',
+            'unitKerja.required' => 'Unit Kerja harus diisi',
         ]);
 
         Employee::updateOrCreate(['id' => $this->pegawai_id], $validatedData);
@@ -165,9 +171,15 @@ class EmployeesTable extends Component
     {
         $validatedData = $this->validate([
             'Updatenama' => 'required',
-            'UpdateNIP' => 'required',
+            'UpdateNIP' => 'required|unique:employee',
             'Updatejabatan' => 'required',
             'UpdateunitKerja' => 'required',
+        ],[
+            'Updatenama.required' => 'Nama harus diisi',
+            'UpdateNIP.required' => 'NIP harus diisi',
+            'UpdateNIP.unique' => 'NIP sudah ada',
+            'Updatejabatan.required' => 'Jabatan harus diisi',
+            'UpdateunitKerja.required' => 'Unit Kerja harus diisi',
         ]);
         
         $employee = Employee::find($this->pegawai_id);
@@ -239,9 +251,18 @@ class EmployeesTable extends Component
     {
         $this->validate([
             'fileImport' => 'required|file|mimes:xlsx,xls', 
-        ]);
+        ],[
+            'fileImport.required' => 'File import tidak boleh kosong',
+            'fileImport.mimes' => 'Format file harus berupa xlsx atau xls'
+        ]);        
 
-        Excel::import(new EmployeesImport, $this->fileImport->getRealPath());
+        try {
+            Excel::import(new EmployeesImport, $this->fileImport->getRealPath());
+        } catch (\Exception $e) {
+            $this->dispatchBrowserEvent($this->closeModalImport());
+            session()->flash('error', 'Pastikan isian Excel yang diupload sesuai format!');
+            return;
+        }
 
         session()->flash('success', 'Data berhasil diimport.');
 

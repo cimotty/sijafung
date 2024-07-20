@@ -20,6 +20,12 @@ Route::get('/', function () {
     return redirect ('/data-pegawai');
 });
 
-Route::get('/user/profile', [UserController::class, 'index']);
-Route::get('/data-pegawai', [EmployeeController::class, 'index']);
-Route::get('/login', [AuthController::class, 'index']);
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/user/profile', [UserController::class, 'index']);
+    Route::get('/data-pegawai', [EmployeeController::class, 'index'])->name('data_pegawai');
+});
+
+
+Route::get('/login', [AuthController::class, 'index'])->name('login')->middleware('guest');
+Route::post('proses_login', [AuthController::class,'proses_login'])->name('proses_login');
+Route::get('logout', [AuthController::class,'logout'])->name('logout');

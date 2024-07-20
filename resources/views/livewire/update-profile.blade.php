@@ -14,8 +14,8 @@
                         <div class="col-md-3 border rounded-3 py-4 text-center mb-4 me-md-5">
                             <i class="fa-regular fa-circle-user text-secondary text-opacity-25 mt-2"
                                 style="font-size: 6rem;"></i>
-                            <p class="mt-3 mb-1"><strong>Admin</strong></p>
-                            <p><strong>admin@gmail.com</strong></p>
+                            <p class="mt-3 mb-1"><strong>{{ auth()->user()->name }}</strong></p>
+                            <p><strong>{{ auth()->user()->email }}</strong></p>
                         </div>
                         <div class="col-md-8 border rounded-3 px-4 py-2 mb-4">
                             <ul wire:ignore class="nav nav-underline" id="myTab" role="tablist">
@@ -41,7 +41,7 @@
                                         <div class="row align-items-center mb-3">
                                             <div class="col-md-2 mb-1 ms-1 mb-md-0 ms-md-0"><strong>Nama</strong></div>
                                             <div class="col-12 col-md-10">
-                                                <input wire:model.debounce.500ms="nama" type="text"
+                                                <input name="nama" wire:model="nama" type="text"
                                                     class="form-control focus-ring focus-ring-light border @error('nama') is-invalid @enderror"
                                                     id="inputNama">
                                                 @error('nama')
@@ -54,7 +54,7 @@
                                         <div class="row align-items-center mb-3">
                                             <div class="col-md-2 mb-1 ms-1 mb-md-0 ms-md-0"><strong>Email</strong></div>
                                             <div class="col-12 col-md-10">
-                                                <input wire:model.debounce.500ms="email" type="text"
+                                                <input name="email" wire:model="email" type="text"
                                                     class="form-control focus-ring focus-ring-light border @error('email') is-invalid @enderror"
                                                     id="inputEmail">
                                                 @error('email')
@@ -65,7 +65,7 @@
                                             </div>
                                         </div>
                                         <div class="d-grid d-md-flex justify-content-md-end">
-                                            <button type="submit" class="btn btn-success btn-sm">Simpan
+                                            <button wire:click.prevent="update_profil()" type="submit" class="btn btn-success btn-sm">Simpan
                                                 Perubahan</button>
                                         </div>
                                     </form>
@@ -75,12 +75,12 @@
                                     tabindex="0">
                                     <form wire:submit.prevent="changePassword">
                                         <div class="row align-items-center mb-3">
-                                            <div class="col-lg-4 mb-1 ms-1 mb-md-0 ms-md-0"><strong>Kata sandi
-                                                    lama</strong>
+                                            <div class="col-lg-4 mb-1 ms-1 mb-md-0 ms-md-0">
+                                                <strong>Kata sandi lama</strong>
                                             </div>
                                             <div class="col-12 col-lg-8">
                                                 <div class="input-group">
-                                                    <input wire:model.debounce.500ms="kataSandiLama" type="password"
+                                                    <input wire:model="kataSandiLama" type="{{ $showPassword ? 'text' : 'password' }}"
                                                         class="form-control focus-ring focus-ring-light border border-end-0 @error('kataSandiLama') is-invalid @enderror"
                                                         id="inputCurrentPassword">
                                                     <span wire:click="toggleShowPassword"
@@ -100,7 +100,7 @@
                                                     baru</strong>
                                             </div>
                                             <div class="col-12 col-lg-8">
-                                                <input wire:model.debounce.500ms="kataSandi" type="password"
+                                                <input wire:model="kataSandi" type="{{ $showPassword ? 'text' : 'password' }}"
                                                     class="form-control focus-ring focus-ring-light border @error('kataSandi') is-invalid @enderror"
                                                     id="inputNewPassword">
                                                 @error('kataSandi')
@@ -114,7 +114,7 @@
                                             <div class="col-lg-4 mb-1 ms-1 mb-md-0 ms-md-0"><strong>Konfirmasi kata
                                                     sandi</strong></div>
                                             <div class="col-12 col-lg-8">
-                                                <input wire:model.debounce.500ms="konfirmasiKataSandi" type="password"
+                                                <input wire:model="konfirmasiKataSandi" type="{{ $showPassword ? 'text' : 'password' }}"
                                                     class="form-control focus-ring focus-ring-light border @error('konfirmasiKataSandi') is-invalid @enderror"
                                                     id="inputConfirmPassword">
                                                 @error('konfirmasiKataSandi')
@@ -125,7 +125,7 @@
                                             </div>
                                         </div>
                                         <div class="d-grid d-lg-flex justify-content-lg-end">
-                                            <button type="submit" class="btn btn-success btn-sm">Simpan
+                                            <button wire:click.prevent="update_sandi()" type="submit" class="btn btn-success btn-sm">Simpan
                                                 Perubahan</button>
                                         </div>
                                     </form>

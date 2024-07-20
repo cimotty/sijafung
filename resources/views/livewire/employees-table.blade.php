@@ -2,10 +2,11 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="bg-white border rounded-4">
-                {{-- Alert Error --}}
-                {{-- <div class="mx-3 mt-4 mb-3">
+                @if (session()->has('error'))
+                <div class="mx-3 mt-4 mb-3">
                     @include('partials.alert-error')
-                </div> --}}
+                </div>
+                @endif
 
                 {{-- Head Table --}}
                 <div class="row align-items-center mx-3 mt-4 mb-3">
