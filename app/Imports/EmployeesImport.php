@@ -14,6 +14,7 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithStartRow
         return new Employee([
             'nama' => $row['nama'],
             'NIP' => $row['nip'],
+            'divisi' => $row['divisi'],
             'jabatan' => $row['jabatan_fungsional'],
             'unitKerja' => $row['unit_kerja'],
         ]);

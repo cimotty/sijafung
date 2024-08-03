@@ -6,7 +6,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="updateModalLabel">
-                            <span>Update Data Pegawai</span>
+                            <span>Ubah Data Pegawai</span>
                         </h1>
                             <button wire:click="closeModalUpdate" type="button" class="btn-close focus-ring focus-ring-light" aria-label="Close"></button>
                     </div>
@@ -26,8 +26,8 @@
                             <div class="col-sm-6 mb-4">
                                 <label for="NIP" class="form-label ms-1">NIP</label>
                                 <div class="input-group input-group-sm">
-                                    <input name="NIP" type="text" wire:model="UpdateNIP" class="form-control focus-ring focus-ring-light border rounded-2 @error('NIP') is-invalid @enderror" placeholder="NIP">
-                                    @error('NIP')
+                                    <input name="NIP" type="text" wire:model="UpdateNIP" class="form-control focus-ring focus-ring-light border rounded-2 @error('UpdateNIP') is-invalid @enderror" placeholder="NIP">
+                                    @error('UpdateNIP')
                                         <div class="invalid-feedback ms-1">
                                             {{ $message }}
                                         </div>
@@ -36,6 +36,16 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-sm-6 mb-4">
+                                <label for="divisi" class="form-label ms-1">Divisi</label>
+                                <select id="divisi" class="form-control" wire:model="UpdateDivisi">
+                                    <option value="">Pilih Divisi</option>
+                                    @foreach($divisiList as $divisi)
+                                        <option value="{{ $divisi }}">{{ $divisi }}</option>
+                                    @endforeach
+                                </select>
+                                @error('UpdateDivisi') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
                             <div class="col-sm-6 mb-4">
                                 <label for="jabatan" class="form-label ms-1">Jabatan</label>
                                 <div class="input-group input-group-sm">
@@ -47,6 +57,8 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-sm-6 mb-4">
                                 <label for="unitKerja" class="form-label ms-1">Unit Kerja</label>
                                 <div class="input-group input-group-sm">
@@ -61,7 +73,7 @@
                         </div>
                         <div class="d-grid d-md-flex justify-content-md-end mb-2 mt-2">
                             <button wire:click.prevent="update()" type="submit" class="btn btn-success">
-                            <span>Update</span>
+                            <span>Ubah</span>
                             </button>
                         </div>
                     </div>

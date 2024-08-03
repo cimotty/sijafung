@@ -11,8 +11,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeesTable extends Component
 {
-    public $pegawai_id, $nama, $NIP, $jabatan, $unitKerja;
+    public $pegawai_id, $nama, $NIP, $divisi, $jabatan, $unitKerja;
     public $search;
+    public $searchDivisi = '';
     use WithPagination;
     public $perPage = 25;
 
@@ -40,8 +41,15 @@ class EmployeesTable extends Component
     public $fileImport;
     use WithFileUploads;
     //
-    
 
+    // Atribut Menampilkan Data PerDivisi
+    public $divisiList;
+    public $selectedDivisi = 'Semua Divisi';
+    public $totalEmployees;
+    public $totalByDivisi = 0;
+    public $totalByJobTitle = [];
+    // 
+    
     protected $updatesQueryString = [
         'perPage' => ['except' => 25],
     ];
@@ -49,6 +57,13 @@ class EmployeesTable extends Component
     public function updatedPerPage($value)
     {
         $this->resetPage();
+    }
+
+    public function mount()
+    {
+        $this->loadEmployees();
+        $this->divisiList = Employee::DIVISI_OPTIONS;
+        $this->calculateTotals();
     }
 
     public function render()
@@ -84,18 +99,60 @@ class EmployeesTable extends Component
         $this->sortBy = $field;
     }
 
+    // Search Per Divisi
+        public function updatedSearchDivisi()
+        {
+            $this->divisiList = array_filter(Employee::DIVISI_OPTIONS, function($divisi) {
+                return stripos($divisi, $this->searchDivisi) !== false;
+            });
+
+            asort($this->divisiList);
+        }
+
+        public function updatedSelectedDivisi()
+        {
+            $this->calculateTotals();
+        }
+
+        public function calculateTotals()
+        {
+            if ($this->selectedDivisi === 'Semua Divisi') {
+                $this->totalByDivisi = Employee::count();
+                $this->jobTitleCounts = Employee::select('jabatan', Employee::raw('count(*) as total'))
+                    ->groupBy('jabatan')
+                    ->get()
+                    ->pluck('total', 'jabatan')
+                    ->toArray();
+            } else {
+                $this->totalByDivisi = Employee::where('divisi', $this->selectedDivisi)->count();
+                $this->jobTitleCounts = Employee::select('jabatan', Employee::raw('count(*) as total'))
+                    ->where('divisi', $this->selectedDivisi)
+                    ->groupBy('jabatan')
+                    ->get()
+                    ->pluck('total', 'jabatan')
+                    ->toArray();
+            }
+
+            ksort($this->jobTitleCounts);
+        }
+    // 
+
     public function openModalCreate()
     {
         $this->isModalCreate = true;
+        $this->resetValidation();
     }
 
     public function openModalUpdate($id)
     {
         $this->isModalUpdate = true;
+        $this->resetValidation();
         $employee = Employee::findOrFail($id);
         $this->pegawai_id = $id;
         $this->Updatenama = $employee->nama;
         $this->UpdateNIP = $employee->NIP;
+        $this->UpdateDivisi = $employee->divisi;
+        $this->UpdateDivisi = $employee->divisi;
         $this->Updatejabatan = $employee->jabatan;
         $this->UpdateunitKerja = $employee->unitKerja;
     }
@@ -140,21 +197,28 @@ class EmployeesTable extends Component
         $this->pegawai_id = '';
         $this->nama = '';
         $this->NIP = '';
+        $this->divisi = '';
         $this->jabatan = '';
         $this->unitKerja = '';
+        $this->searchDivisi = '';
+        $this->divisiList = Employee::DIVISI_OPTIONS;
     }
     
     public function store()
     {
         $validatedData = $this->validate([
             'nama' => 'required',
-            'NIP' => 'required|unique:employee',
+            'NIP' => 'required|unique:employee|numeric',
+            'divisi' => 'required|in:' . implode(',', Employee::DIVISI_OPTIONS),
             'jabatan' => 'required',
             'unitKerja' => 'required',
         ],[
             'nama.required' => 'Nama harus diisi',
             'NIP.required' => 'NIP harus diisi',
             'NIP.unique' => 'NIP sudah ada',
+            'NIP.numeric' => 'NIP harus berupa angka',
+            'divisi.required' => 'Divisi harus dipilih',
+            'divisi.in' => 'Divisi yang dipilih tidak valid',
             'jabatan.required' => 'Jabatan harus diisi',
             'unitKerja.required' => 'Unit Kerja harus diisi',
         ]);
@@ -169,9 +233,13 @@ class EmployeesTable extends Component
 
     public function update()
     {
+        $employee = Employee::find($this->pegawai_id);
+        
+
         $validatedData = $this->validate([
             'Updatenama' => 'required',
-            'UpdateNIP' => 'required|unique:employee',
+            'UpdateNIP' => 'required|unique:employee,NIP,' . $this->pegawai_id,
+            'UpdateDivisi' => 'required',
             'Updatejabatan' => 'required',
             'UpdateunitKerja' => 'required',
         ],[
@@ -182,12 +250,11 @@ class EmployeesTable extends Component
             'UpdateunitKerja.required' => 'Unit Kerja harus diisi',
         ]);
         
-        $employee = Employee::find($this->pegawai_id);
-        
         if ($employee) {
             $employee->update([
                 'nama' => $this->Updatenama,
                 'NIP' => $this->UpdateNIP,
+                'divisi' => $this->UpdateDivisi,
                 'jabatan' => $this->Updatejabatan,
                 'unitKerja' => $this->UpdateunitKerja,
             ]);
@@ -205,11 +272,6 @@ class EmployeesTable extends Component
     
 
     // Selected
-    public function mount()
-    {
-        $this->loadEmployees();
-    }
-
     public function loadEmployees()
     {
         $this->employees = Employee::all();

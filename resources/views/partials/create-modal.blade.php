@@ -37,6 +37,16 @@
                             </div>
                         </div>
                         <div class="row">
+                        <div class="col-sm-6 mb-4">
+                                <label for="divisi" class="form-label ms-1">Divisi</label>
+                                <select id="divisi" class="form-control" wire:model="divisi">
+                                    <option value="">Pilih Divisi</option>
+                                    @foreach($divisiList as $divisi)
+                                        <option value="{{ $divisi }}">{{ $divisi }}</option>
+                                    @endforeach
+                                </select>
+                                @error('divisi') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
                             <div class="col-sm-6 mb-4">
                                 <label for="jabatan" class="form-label ms-1">Jabatan</label>
                                 <div class="input-group input-group-sm">
@@ -48,6 +58,8 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-sm-6 mb-4">
                                 <label for="unitKerja" class="form-label ms-1">Unit Kerja</label>
                                 <div class="input-group input-group-sm">
