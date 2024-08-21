@@ -17,7 +17,7 @@
 <body class="d-flex flex-column min-vh-100 bg-body-tertiary">
     <nav class="navbar navbar-expand-sm sticky-top bg-white border-bottom">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="/data-pegawai">
+            <a class="navbar-brand fw-semibold" href="/">
                 <img src="{{ asset('img/bengkulu-logo.png') }}" class="img-fluid" style="width: 50px" alt="">
                 SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional
             </a>
@@ -30,7 +30,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
                         <button class="btn dropdown-toggle border-0" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ auth()->user()->name }}
+                            {{ auth()->user()->name }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li>
@@ -40,7 +40,7 @@
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <form action="{{url('logout')}}" method="GET">
+                                <form action="{{ url('logout') }}" method="GET">
                                     @csrf
                                     <button type="submit" class="btn border-0">
                                         <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Keluar
@@ -60,7 +60,7 @@
 
     <footer class="main-footer bg-body-tertiary mt-auto">
         <div class="text-secondary text-center pt-3">
-            <p>Copyright &copy; 2023 <strong>SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional</strong></p>
+            <p>Copyright &copy; 2024 <strong>SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional</strong></p>
         </div>
     </footer>
 

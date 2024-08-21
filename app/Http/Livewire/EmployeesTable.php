@@ -15,6 +15,7 @@ class EmployeesTable extends Component
     public $search;
     public $searchDivisi = '';
     use WithPagination;
+    protected $paginationTheme = 'bootstrap';
     public $perPage = 25;
 
     // Atribut CRUD
@@ -54,6 +55,11 @@ class EmployeesTable extends Component
         'perPage' => ['except' => 25],
     ];
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
     public function updatedPerPage($value)
     {
         $this->resetPage();
@@ -70,22 +76,30 @@ class EmployeesTable extends Component
     {
         $query = Employee::query();
 
+        if ($this->selectedDivisi != 'Semua Divisi') {
+            $query->where('divisi', $this->selectedDivisi);
+        }
+
         // Menambahkan filter pencarian
         $query->where(function($subquery) {
             $subquery->where('nama', 'like', '%'.$this->search.'%')
                     ->orWhere('NIP', 'like', '%'.$this->search.'%')
+                    ->orWhere('divisi', 'like', '%'.$this->search.'%')
                     ->orWhere('jabatan', 'like', '%'.$this->search.'%')
                     ->orWhere('unitKerja', 'like', '%'.$this->search.'%');
         });
 
         // Menambahkan pengurutan
-        if ($this->sortBy && in_array($this->sortBy, ['nama', 'NIP', 'jabatan', 'unitKerja'])) {
+        if ($this->sortBy && in_array($this->sortBy, ['nama', 'NIP', 'divisi', 'jabatan', 'unitKerja'])) {
             $query->orderBy($this->sortBy, $this->sortDirection);
         }
 
         $employee = $query->paginate($this->perPage);
 
-        return view('livewire.employees-table', ['employee' => $employee]);
+        return view('livewire.employees-table', [
+            'employee' => $employee,
+            'jobTitleCounts' => $this->jobTitleCounts,
+        ]);
     }
 
     public function sortBy($field)

@@ -11,6 +11,14 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithStartRow
 {
     public function model(array $row)
     {
+        // Cek apakah NIP sudah ada di database
+        $existingEmployee = Employee::where('NIP', $row['nip'])->first();
+
+        // Jika NIP sudah ada, kembalikan null untuk mengabaikan data
+        if ($existingEmployee) {
+            return null;
+        }
+        
         return new Employee([
             'nama' => $row['nama'],
             'NIP' => $row['nip'],

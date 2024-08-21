@@ -1,0 +1,4 @@
+.dropdown-menu {
+    max-height: 400px; /* Anda bisa menyesuaikan tinggi maksimal sesuai kebutuhan */
+    overflow-y: auto;
+}

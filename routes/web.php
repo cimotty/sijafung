@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect ('/data-pegawai');
+    return view('landing.landing');
 });
 
 Route::group(['middleware' => ['auth']], function () {

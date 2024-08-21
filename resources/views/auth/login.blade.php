@@ -20,7 +20,7 @@
             <a class="navbar-brand fw-semibold" href="/">
                 <img src="{{ asset('img/bengkulu-logo.png') }}" class="img-fluid" style="width: 50px" alt="">
                 SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional
-            </a>            
+            </a>
         </div>
     </nav>
 
@@ -34,11 +34,12 @@
                         {{-- Alert Error --}}
                         {{-- @include('partials.alert-error') --}}
 
-                        <form action="{{url('proses_login')}}" method="POST">
+                        <form action="{{ url('proses_login') }}" method="POST">
                             @csrf
                             <div class="input-group mb-4">
-                                <input name="email" type="text" class="form-control focus-ring focus-ring-light border"
-                                    placeholder="Alamat email" autofocus required>
+                                <input name="email" type="text"
+                                    class="form-control focus-ring focus-ring-light border" placeholder="Alamat email"
+                                    autofocus required>
                             </div>
                             <div class="input-group mb-5">
                                 <input name="password" id="password" type="password"
@@ -59,7 +60,7 @@
 
     <footer class="main-footer bg-body-tertiary mt-auto">
         <div class="text-secondary text-center pt-3">
-            <p>Copyright &copy; 2023 <strong>SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional</strong></p>
+            <p>Copyright &copy; 2024 <strong>SIJAFUNG - Sistem Informasi Pelatihan Jabatan Fungsional</strong></p>
         </div>
     </footer>
 
@@ -75,4 +76,3 @@
 </body>
 
 </html>
-

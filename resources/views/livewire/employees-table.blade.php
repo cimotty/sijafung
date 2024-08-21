@@ -6,20 +6,21 @@
                 <div class="row mb-3">
                     <div class="col">
                         <div class="btn-group">
-                            <button class="btn pe-none fw-semibold focus-ring focus-ring-light border border-0">Pilih Divisi :</button>
-                            <button class="btn btn-success rounded dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn pe-none fw-semibold focus-ring focus-ring-light border border-0">Pilih
+                                Divisi :</button>
+                            <button class="btn btn-success rounded dropdown-toggle dropdown-toggle-split"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ $selectedDivisi }}
                             </button>
                             <ul class="dropdown-menu">
-                                <div class="input-group input-group-sm p-2">
-                                    <input type="text" class="form-control" placeholder="Cari Divisi..." wire:model="searchDivisi">
-                                </div>
                                 <li>
-                                    <a class="dropdown-item" href="#" wire:click.prevent="$set('selectedDivisi', 'Semua Divisi')">Semua Divisi</a>
+                                    <a class="dropdown-item" href="#"
+                                        wire:click.prevent="$set('selectedDivisi', 'Semua Divisi')">Semua Divisi</a>
                                 </li>
-                                @foreach($divisiList as $divisiOption)
+                                @foreach ($divisiList as $divisiOption)
                                     <li>
-                                        <a class="dropdown-item" href="#" wire:click.prevent="$set('selectedDivisi', '{{ $divisiOption }}')">{{ $divisiOption }}</a>
+                                        <a class="dropdown-item" href="#"
+                                            wire:click.prevent="$set('selectedDivisi', '{{ $divisiOption }}')">{{ $divisiOption }}</a>
                                     </li>
                                 @endforeach
                             </ul>
@@ -35,13 +36,27 @@
                 </div>
 
                 <!-- Menampilkan Data Jabatan dan Jumlah Pegawai -->
-                @if($selectedDivisi !== 'Semua Divisi')
+                @if ($selectedDivisi !== 'Semua Divisi')
                     <div class="row ps-3">
-                        <div class="col">
-                            @foreach($jobTitleCounts as $jobTitle => $total)
-                                <h5 class="fs-6">Total {{ $jobTitle }} : {{ $total }} Pegawai</h5>
-                            @endforeach
-                        </div>
+                        @php
+                            $chunkedJobTitleCounts = array_chunk(
+                                $jobTitleCounts,
+                                ceil(count($jobTitleCounts) / 2),
+                                true,
+                            );
+                            $number = 1;
+                        @endphp
+                        @foreach ($chunkedJobTitleCounts as $chunk)
+                            <div class="col-xl-6">
+                                @foreach ($chunk as $jobTitle => $total)
+                                    <h5 class="fs-6">{{ $number }}. Total {{ $jobTitle }} :
+                                        {{ $total }} Pegawai</h5>
+                                    @php
+                                        $number++;
+                                    @endphp
+                                @endforeach
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
@@ -95,11 +110,11 @@
                     </div>
 
                     <div class="d-grid d-md-flex justify-content-md-end col-md">
-                        <button wire:click.prevent="openModalImport" type="button"
+                        {{-- <button wire:click.prevent="openModalImport" type="button"
                             class="btn btn-sm btn-outline-dark fw-medium rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2"
                             data-bs-toggle="modal" data-bs-target="#importModal">
                             <span>Import</span>
-                        </button>
+                        </button> --}}
                         <button wire:click="ConfirmCreate()" type="button"
                             class="btn btn-sm btn-success rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2">
                             <span>Tambah Data</span>
@@ -128,9 +143,9 @@
                                     </a>
                                     @if ($sortBy == 'nama')
                                         @if ($sortDirection == 'asc')
-                                            <i class="fa fa-sort-alpha-up"></i>
-                                        @else
                                             <i class="fa fa-sort-alpha-down"></i>
+                                        @else
+                                            <i class="fa fa-sort-alpha-up"></i>
                                         @endif
                                     @endif
                                 </th>
@@ -141,22 +156,22 @@
                                     </a>
                                     @if ($sortBy == 'NIP')
                                         @if ($sortDirection == 'asc')
-                                            <i class="fa fa-sort-numeric-up"></i>
-                                        @else
                                             <i class="fa fa-sort-numeric-down"></i>
+                                        @else
+                                            <i class="fa fa-sort-numeric-up"></i>
                                         @endif
                                     @endif
                                 </th>
                                 <th scope="col" class="text-center">
-                                    <a href="#" wire:click.prevent="sortBy('divis')" class="text-dark"
+                                    <a href="#" wire:click.prevent="sortBy('divisi')" class="text-dark"
                                         style="background-color: transparent; text-decoration: none;">
                                         Divisi
                                     </a>
                                     @if ($sortBy == 'divisi')
                                         @if ($sortDirection == 'asc')
-                                            <i class="fa fa-sort-numeric-up"></i>
+                                            <i class="fa fa-sort-alpha-down"></i>
                                         @else
-                                            <i class="fa fa-sort-numeric-down"></i>
+                                            <i class="fa fa-sort-alpha-up"></i>
                                         @endif
                                     @endif
                                 </th>
@@ -167,9 +182,9 @@
                                     </a>
                                     @if ($sortBy == 'jabatan')
                                         @if ($sortDirection == 'asc')
-                                            <i class="fa fa-sort-alpha-up"></i>
-                                        @else
                                             <i class="fa fa-sort-alpha-down"></i>
+                                        @else
+                                            <i class="fa fa-sort-alpha-up"></i>
                                         @endif
                                     @endif
                                 </th>
@@ -180,9 +195,9 @@
                                     </a>
                                     @if ($sortBy == 'unitKerja')
                                         @if ($sortDirection == 'asc')
-                                            <i class="fa fa-sort-alpha-up"></i>
-                                        @else
                                             <i class="fa fa-sort-alpha-down"></i>
+                                        @else
+                                            <i class="fa fa-sort-alpha-up"></i>
                                         @endif
                                     @endif
                                 </th>
