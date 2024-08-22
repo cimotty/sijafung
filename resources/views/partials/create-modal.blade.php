@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-sm-6 mb-4">
                         <label for="sertifikat" class="form-label ms-1">Upload Sertifikat</label>
-                        <input type="file" name="sertifikat" class="form-control focus-ring focus-ring-light border rounded-2 @error('sertifikat') is-invalid @enderror" wire:model="sertifikat">
+                        <input type="file" name="sertifikat[]" class="form-control focus-ring focus-ring-light border rounded-2 @error('sertifikat') is-invalid @enderror" wire:model="sertifikat" multiple>
                         @error('sertifikat')
                             <div class="invalid-feedback ms-1">
                                 {{ $message }}

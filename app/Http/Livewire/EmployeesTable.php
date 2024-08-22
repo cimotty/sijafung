@@ -75,7 +75,7 @@ class EmployeesTable extends Component
 
     public function render()
     {
-        $query = Employee::query();
+        $query = Employee::query()->with('certificates');
 
         if ($this->selectedDivisi != 'Semua OPD') {
             $query->where('divisi', $this->selectedDivisi);
@@ -231,7 +231,7 @@ class EmployeesTable extends Component
             'divisi' => 'required|in:' . implode(',', Employee::DIVISI_OPTIONS),
             'jabatan' => 'required',
             'unitKerja' => 'required',
-            'sertifikat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'sertifikat.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'keterangan' => 'nullable',
         ],[
             'nama.required' => 'Nama harus diisi',
@@ -241,30 +241,37 @@ class EmployeesTable extends Component
             'divisi.required' => 'Divisi harus dipilih',
             'divisi.in' => 'Divisi yang dipilih tidak valid',
             'jabatan.required' => 'Jabatan harus diisi',
-            'sertifikat.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG',
-            'sertifikat.max' => 'Ukuran file maksimal 2MB',
+            'sertifikat.*.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG',
+            'sertifikat.*.max' => 'Ukuran file maksimal 2MB',
             'unitKerja.required' => 'Unit Kerja harus diisi',
         ]);
 
-        // Jika ada file sertifikat yang diupload
+        $employee = Employee::create([
+            'nama' => $validatedData['nama'],
+            'NIP' => $validatedData['NIP'],
+            'divisi' => $validatedData['divisi'],
+            'jabatan' => $validatedData['jabatan'],
+            'unitKerja' => $validatedData['unitKerja'],
+            'keterangan' => $validatedData['keterangan'],
+        ]);
+
         if ($this->sertifikat) {
-            $fileName = time() . '_' . $this->sertifikat->getClientOriginalName();
-            $filePath = $this->sertifikat->storeAs('sertifikat', $fileName, 'public');
-            $validatedData['sertifikat'] = $filePath;
+            foreach ($this->sertifikat as $file) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('sertifikat', $fileName, 'public');
+                $employee->certificates()->create(['file_path' => $filePath]);
+            }
         }
 
-        Employee::updateOrCreate(['id' => $this->pegawai_id], $validatedData);
-
         session()->flash('success', 'Data Pegawai Berhasil Ditambahkan');
-
         $this->closeModalCreate();
         $this->resetInputFields();
     }
 
+
     public function update()
     {
         $employee = Employee::find($this->pegawai_id);
-        
 
         $validatedData = $this->validate([
             'Updatenama' => 'required',
@@ -272,7 +279,7 @@ class EmployeesTable extends Component
             'UpdateDivisi' => 'required',
             'Updatejabatan' => 'required',
             'UpdateunitKerja' => 'required',
-            'UpdateSertifikat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'UpdateSertifikat.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'Updateketerangan' => 'nullable',
         ],[
             'Updatenama.required' => 'Nama harus diisi',
@@ -280,21 +287,24 @@ class EmployeesTable extends Component
             'UpdateNIP.unique' => 'NIP sudah ada',
             'Updatejabatan.required' => 'Jabatan harus diisi',
             'UpdateunitKerja.required' => 'Unit Kerja harus diisi',
-            'UpdateSertifikat.mimes' => 'Sertifikat harus dalam format: pdf, jpg, jpeg, atau png',
-            'UpdateSertifikat.max' => 'Ukuran file sertifikat tidak boleh lebih dari 2MB',
+            'UpdateSertifikat.*.mimes' => 'Sertifikat harus dalam format: pdf, jpg, jpeg, atau png',
+            'UpdateSertifikat.*.max' => 'Ukuran file sertifikat tidak boleh lebih dari 2MB',
         ]);
 
-        // Upload sertifikat jika ada file baru yang diunggah
+        // Hapus sertifikat lama jika diperlukan
         if ($this->UpdateSertifikat) {
-            $sertifikatPath = $this->UpdateSertifikat->store('sertifikat', 'public');
-
-            // Hapus sertifikat lama jika ada
-            if ($employee->sertifikat) {
-                Storage::disk('public')->delete($employee->sertifikat);
+            // Hapus sertifikat lama
+            foreach ($employee->certificates as $certificate) {
+                Storage::disk('public')->delete($certificate->file_path);
+                $certificate->delete();
             }
 
-            // Tambahkan path sertifikat ke data yang akan diupdate
-            $validatedData['sertifikat'] = $sertifikatPath;
+            // Upload sertifikat baru
+            foreach ($this->UpdateSertifikat as $file) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('sertifikat', $fileName, 'public');
+                $employee->certificates()->create(['file_path' => $filePath]);
+            }
         }
 
         if ($employee) {
@@ -304,7 +314,6 @@ class EmployeesTable extends Component
                 'divisi' => $this->UpdateDivisi,
                 'jabatan' => $this->Updatejabatan,
                 'unitKerja' => $this->UpdateunitKerja,
-                'sertifikat' => $validatedData['sertifikat'] ?? $employee->sertifikat,
                 'keterangan' => $this->Updateketerangan,
             ]);
 
@@ -313,12 +322,30 @@ class EmployeesTable extends Component
         }
     }
 
-    public function delete(){
-        Employee::find($this->pegawai_id)->delete();
-        session()->flash('success', 'Data Pegawai Berhasil Dihapus');
+    public function delete()
+    {
+        // Temukan pegawai berdasarkan ID
+        $employee = Employee::find($this->pegawai_id);
+
+        if ($employee) {
+            // Hapus sertifikat yang terkait
+            foreach ($employee->certificates as $certificate) {
+                // Hapus file dari storage
+                Storage::disk('public')->delete($certificate->file_path);
+                // Hapus record sertifikat dari database
+                $certificate->delete();
+            }
+
+            // Hapus data pegawai
+            $employee->delete();
+
+            session()->flash('success', 'Data Pegawai Berhasil Dihapus');
+        } else {
+            session()->flash('error', 'Data Pegawai Tidak Ditemukan');
+        }
+
         $this->closeModalDelete();
-    }
-    
+    }    
 
     // Selected
     public function loadEmployees()
@@ -346,7 +373,22 @@ class EmployeesTable extends Component
 
     public function deleteSelectedRows()
     {
-        Employee::whereIn('id', $this->selectedRows)->delete();
+        // Temukan pegawai yang dipilih
+        $employees = Employee::whereIn('id', $this->selectedRows)->get();
+
+        foreach ($employees as $employee) {
+            // Hapus sertifikat yang terkait dengan pegawai
+            foreach ($employee->certificates as $certificate) {
+                // Hapus file sertifikat dari storage
+                Storage::disk('public')->delete($certificate->file_path);
+                // Hapus record sertifikat dari database
+                $certificate->delete();
+            }
+
+            // Hapus data pegawai
+            $employee->delete();
+        }
+
         session()->flash('success', 'Data pegawai yang dipilih berhasil dihapus');
         $this->closeModalDelete();
     }

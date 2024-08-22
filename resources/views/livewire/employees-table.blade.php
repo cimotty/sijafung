@@ -258,16 +258,11 @@
                                             class="btn btn-sm btn-outline-success rounded-3 py-1 px-2 my-1 ms-1">
                                             <i class="fa fa-print"></i>
                                         </a>
-                                        @if ($employees->sertifikat)
-                                                <a href="{{ asset('storage/' . $employees->sertifikat) }}" target="_blank"
-                                                    class="btn btn-sm btn-outline-info rounded-3 py-1 px-2 my-1 ms-1">
-                                                    <i class="fa fa-eye"></i>
-                                                </a>
-                                            @else
-                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-3 py-1 px-2 my-1 ms-1" disabled>
-                                                    <i class="fa fa-eye-slash"></i>
-                                                </button>
-                                        @endif
+                                        @foreach ($employees->certificates as $certificate)
+                                            <a href="{{ asset('storage/' . $certificate->file_path) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-3 py-1 px-2 my-1 ms-1">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                        @endforeach
                                     </td>
                                 </tr>
                             @empty

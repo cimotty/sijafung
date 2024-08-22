@@ -55,7 +55,6 @@ return new class extends Migration
                 'Sekretariat DPRD',
                 ]);
             $table->string('unitKerja');
-            $table->string('sertifikat')->nullable();
             $table->string('keterangan')->nullable();
             $table->timestamps();
         });

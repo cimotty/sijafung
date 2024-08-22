@@ -12,6 +12,11 @@ class Employee extends Model
     protected $table = 'employee';
     protected $guarded = ['id'];
 
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+    
     const DIVISI_OPTIONS = [
         'Dinas Kesehatan',
         'RSUD dr. M. Yunus',
