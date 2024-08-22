@@ -7,7 +7,7 @@
                     <div class="col">
                         <div class="btn-group">
                             <button class="btn pe-none fw-semibold focus-ring focus-ring-light border border-0">Pilih
-                                Divisi :</button>
+                                OPD :</button>
                             <button class="btn btn-success rounded dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ $selectedDivisi }}
@@ -15,7 +15,7 @@
                             <ul class="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item" href="#"
-                                        wire:click.prevent="$set('selectedDivisi', 'Semua Divisi')">Semua Divisi</a>
+                                        wire:click.prevent="$set('selectedDivisi', 'Semua OPD')">Semua OPD</a>
                                 </li>
                                 @foreach ($divisiList as $divisiOption)
                                     <li>
@@ -36,7 +36,7 @@
                 </div>
 
                 <!-- Menampilkan Data Jabatan dan Jumlah Pegawai -->
-                @if ($selectedDivisi !== 'Semua Divisi')
+                @if ($selectedDivisi !== 'Semua OPD')
                     <div class="row ps-3">
                         @php
                             $chunkedJobTitleCounts = array_chunk(
@@ -110,15 +110,20 @@
                     </div>
 
                     <div class="d-grid d-md-flex justify-content-md-end col-md">
-                        {{-- <button wire:click.prevent="openModalImport" type="button"
+                        <button wire:click.prevent="openModalImport" type="button"
                             class="btn btn-sm btn-outline-dark fw-medium rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2"
                             data-bs-toggle="modal" data-bs-target="#importModal">
                             <span>Import</span>
-                        </button> --}}
+                        </button>
                         <button wire:click="ConfirmCreate()" type="button"
                             class="btn btn-sm btn-success rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2">
                             <span>Tambah Data</span>
                         </button>
+                        <a href="{{ route('employee.printByDivisi', $selectedDivisi) }}" target="_blank"
+                            class="btn btn-sm btn-outline-success rounded-3 py-1 px-2 my-1 ms-1">
+                            <i class="fa fa-print"></i> Cetak
+                        </a>
+
                     </div>
                 </div>
 
@@ -165,7 +170,7 @@
                                 <th scope="col" class="text-center">
                                     <a href="#" wire:click.prevent="sortBy('divisi')" class="text-dark"
                                         style="background-color: transparent; text-decoration: none;">
-                                        Divisi
+                                        OPD
                                     </a>
                                     @if ($sortBy == 'divisi')
                                         @if ($sortDirection == 'asc')
@@ -178,7 +183,7 @@
                                 <th scope="col" class="text-center">
                                     <a href="#" wire:click.prevent="sortBy('jabatan')" class="text-dark"
                                         style="background-color: transparent; text-decoration: none;">
-                                        Jabatan
+                                        Jabatan Fungsional
                                     </a>
                                     @if ($sortBy == 'jabatan')
                                         @if ($sortDirection == 'asc')
@@ -194,6 +199,19 @@
                                         Unit Kerja
                                     </a>
                                     @if ($sortBy == 'unitKerja')
+                                        @if ($sortDirection == 'asc')
+                                            <i class="fa fa-sort-alpha-down"></i>
+                                        @else
+                                            <i class="fa fa-sort-alpha-up"></i>
+                                        @endif
+                                    @endif
+                                </th>
+                                <th scope="col" class="text-center">
+                                    <a href="#" wire:click.prevent="sortBy('keterangan')" class="text-dark"
+                                        style="background-color: transparent; text-decoration: none;">
+                                        Pelatihan yang Diikuti
+                                    </a>
+                                    @if ($sortBy == 'keterangan')
                                         @if ($sortDirection == 'asc')
                                             <i class="fa fa-sort-alpha-down"></i>
                                         @else
@@ -224,6 +242,7 @@
                                     <td class="text-center">{{ $employees->divisi }}</td>
                                     <td class="text-center">{{ $employees->jabatan }}</td>
                                     <td class="text-center">{{ $employees->unitKerja }}</td>
+                                    <td class="text-center">{{ $employees->keterangan }}</td>
                                     <td class="text-center">
                                         <button wire:click="openModalUpdate({{ $employees->id }})" type="button"
                                             class="btn btn-sm btn-outline-primary rounded-3 py-1 px-2 my-1 ms-1"
@@ -235,6 +254,20 @@
                                             class="btn btn-sm btn-outline-danger rounded-3 py-1 px-2 my-1 ms-1">
                                             <i class="fa-regular fa-trash-can"></i>
                                         </button>
+                                        <a href="{{ route('employee.print', $employees->id) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-success rounded-3 py-1 px-2 my-1 ms-1">
+                                            <i class="fa fa-print"></i>
+                                        </a>
+                                        @if ($employees->sertifikat)
+                                                <a href="{{ asset('storage/' . $employees->sertifikat) }}" target="_blank"
+                                                    class="btn btn-sm btn-outline-info rounded-3 py-1 px-2 my-1 ms-1">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-3 py-1 px-2 my-1 ms-1" disabled>
+                                                    <i class="fa fa-eye-slash"></i>
+                                                </button>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

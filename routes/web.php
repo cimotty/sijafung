@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PrintController;
+use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/user/profile', [UserController::class, 'index']);
     Route::get('/data-pegawai', [EmployeeController::class, 'index'])->name('data_pegawai');
 });
+
+Route::get('/employee/print/{id}', [PrintController::class, 'print'])->name('employee.print');
+Route::get('/employee/print/divisi/{divisi}', [PrintController::class, 'printByDivisi'])->name('employee.printByDivisi');
 
 
 Route::get('/login', [AuthController::class, 'index'])->name('login')->middleware('guest');

@@ -4,14 +4,15 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Employee;
-use App\Imports\EmployeesImport;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use App\Imports\EmployeesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeesTable extends Component
 {
-    public $pegawai_id, $nama, $NIP, $divisi, $jabatan, $unitKerja;
+    public $pegawai_id, $nama, $NIP, $divisi, $jabatan, $unitKerja, $keterangan, $sertifikat;
     public $search;
     public $searchDivisi = '';
     use WithPagination;
@@ -45,7 +46,7 @@ class EmployeesTable extends Component
 
     // Atribut Menampilkan Data PerDivisi
     public $divisiList;
-    public $selectedDivisi = 'Semua Divisi';
+    public $selectedDivisi = 'Semua OPD';
     public $totalEmployees;
     public $totalByDivisi = 0;
     public $totalByJobTitle = [];
@@ -76,7 +77,7 @@ class EmployeesTable extends Component
     {
         $query = Employee::query();
 
-        if ($this->selectedDivisi != 'Semua Divisi') {
+        if ($this->selectedDivisi != 'Semua OPD') {
             $query->where('divisi', $this->selectedDivisi);
         }
 
@@ -130,7 +131,7 @@ class EmployeesTable extends Component
 
         public function calculateTotals()
         {
-            if ($this->selectedDivisi === 'Semua Divisi') {
+            if ($this->selectedDivisi === 'Semua OPD') {
                 $this->totalByDivisi = Employee::count();
                 $this->jobTitleCounts = Employee::select('jabatan', Employee::raw('count(*) as total'))
                     ->groupBy('jabatan')
@@ -169,6 +170,8 @@ class EmployeesTable extends Component
         $this->UpdateDivisi = $employee->divisi;
         $this->Updatejabatan = $employee->jabatan;
         $this->UpdateunitKerja = $employee->unitKerja;
+        $this->UpdateSertifikat = $employee->sertifikat;
+        $this->Updateketerangan = $employee->keterangan;
     }
 
     public function openModalDelete($id)
@@ -214,6 +217,8 @@ class EmployeesTable extends Component
         $this->divisi = '';
         $this->jabatan = '';
         $this->unitKerja = '';
+        $this->sertifikat = '';
+        $this->keterangan = '';
         $this->searchDivisi = '';
         $this->divisiList = Employee::DIVISI_OPTIONS;
     }
@@ -226,6 +231,8 @@ class EmployeesTable extends Component
             'divisi' => 'required|in:' . implode(',', Employee::DIVISI_OPTIONS),
             'jabatan' => 'required',
             'unitKerja' => 'required',
+            'sertifikat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'keterangan' => 'nullable',
         ],[
             'nama.required' => 'Nama harus diisi',
             'NIP.required' => 'NIP harus diisi',
@@ -234,8 +241,17 @@ class EmployeesTable extends Component
             'divisi.required' => 'Divisi harus dipilih',
             'divisi.in' => 'Divisi yang dipilih tidak valid',
             'jabatan.required' => 'Jabatan harus diisi',
+            'sertifikat.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG',
+            'sertifikat.max' => 'Ukuran file maksimal 2MB',
             'unitKerja.required' => 'Unit Kerja harus diisi',
         ]);
+
+        // Jika ada file sertifikat yang diupload
+        if ($this->sertifikat) {
+            $fileName = time() . '_' . $this->sertifikat->getClientOriginalName();
+            $filePath = $this->sertifikat->storeAs('sertifikat', $fileName, 'public');
+            $validatedData['sertifikat'] = $filePath;
+        }
 
         Employee::updateOrCreate(['id' => $this->pegawai_id], $validatedData);
 
@@ -256,14 +272,31 @@ class EmployeesTable extends Component
             'UpdateDivisi' => 'required',
             'Updatejabatan' => 'required',
             'UpdateunitKerja' => 'required',
+            'UpdateSertifikat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'Updateketerangan' => 'nullable',
         ],[
             'Updatenama.required' => 'Nama harus diisi',
             'UpdateNIP.required' => 'NIP harus diisi',
             'UpdateNIP.unique' => 'NIP sudah ada',
             'Updatejabatan.required' => 'Jabatan harus diisi',
             'UpdateunitKerja.required' => 'Unit Kerja harus diisi',
+            'UpdateSertifikat.mimes' => 'Sertifikat harus dalam format: pdf, jpg, jpeg, atau png',
+            'UpdateSertifikat.max' => 'Ukuran file sertifikat tidak boleh lebih dari 2MB',
         ]);
-        
+
+        // Upload sertifikat jika ada file baru yang diunggah
+        if ($this->UpdateSertifikat) {
+            $sertifikatPath = $this->UpdateSertifikat->store('sertifikat', 'public');
+
+            // Hapus sertifikat lama jika ada
+            if ($employee->sertifikat) {
+                Storage::disk('public')->delete($employee->sertifikat);
+            }
+
+            // Tambahkan path sertifikat ke data yang akan diupdate
+            $validatedData['sertifikat'] = $sertifikatPath;
+        }
+
         if ($employee) {
             $employee->update([
                 'nama' => $this->Updatenama,
@@ -271,6 +304,8 @@ class EmployeesTable extends Component
                 'divisi' => $this->UpdateDivisi,
                 'jabatan' => $this->Updatejabatan,
                 'unitKerja' => $this->UpdateunitKerja,
+                'sertifikat' => $validatedData['sertifikat'] ?? $employee->sertifikat,
+                'keterangan' => $this->Updateketerangan,
             ]);
 
             session()->flash('success', 'Data Pegawai Berhasil Diupdate');
