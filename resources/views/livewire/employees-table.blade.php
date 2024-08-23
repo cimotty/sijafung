@@ -110,17 +110,17 @@
                     </div>
 
                     <div class="d-grid d-md-flex justify-content-md-end col-md">
-                        <button wire:click.prevent="openModalImport" type="button"
+                        {{-- <button wire:click.prevent="openModalImport" type="button"
                             class="btn btn-sm btn-outline-dark fw-medium rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2"
                             data-bs-toggle="modal" data-bs-target="#importModal">
                             <span>Import</span>
-                        </button>
+                        </button> --}}
                         <button wire:click="ConfirmCreate()" type="button"
                             class="btn btn-sm btn-success rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2">
                             <span>Tambah Data</span>
                         </button>
                         <a href="{{ route('employee.printByDivisi', $selectedDivisi) }}" target="_blank"
-                            class="btn btn-sm btn-outline-success rounded-3 py-1 px-2 my-1 ms-1">
+                            class="btn btn-sm btn-outline-success rounded-3 p-2 mb-2 mb-md-0 ms-0 ms-md-2">
                             <i class="fa fa-print"></i> Cetak
                         </a>
 
@@ -259,7 +259,9 @@
                                             <i class="fa fa-print"></i>
                                         </a>
                                         @foreach ($employees->certificates as $certificate)
-                                            <a href="{{ asset('storage/' . $certificate->file_path) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-3 py-1 px-2 my-1 ms-1">
+                                            <a href="{{ asset('storage/' . $certificate->file_path) }}"
+                                                target="_blank"
+                                                class="btn btn-sm btn-outline-info rounded-3 py-1 px-2 my-1 ms-1">
                                                 <i class="fa fa-eye"></i>
                                             </a>
                                         @endforeach

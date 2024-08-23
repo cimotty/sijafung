@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,9 +37,10 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <h2>DATA PEGAWAI {{ $divisi }}</h2>
+        <h2>Data Pegawai {{ $divisi }}</h2>
         <p>Tanggal: {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
     </div>
 
@@ -58,7 +60,17 @@
                 <td>{{ $employee->NIP }}</td>
                 <td>{{ $employee->jabatan }}</td>
                 <td>{{ $employee->unitKerja }}</td>
-                <td>{{ $employee->pelatihan ?? 'Belum Ada' }}</td>
+                <td>
+                    <ul>
+                        @if (empty($employee->keterangan))
+                            Belum Ada
+                        @else
+                            @foreach (explode(',', $employee->keterangan) as $item)
+                                <li>{{ trim($item) }}</li>
+                            @endforeach
+                        @endif
+                    </ul>
+                </td>
             </tr>
         @endforeach
     </table>
@@ -68,4 +80,5 @@
         window.print();
     </script>
 </body>
+
 </html>

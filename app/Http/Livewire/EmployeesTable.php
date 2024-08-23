@@ -409,13 +409,13 @@ class EmployeesTable extends Component
             'fileImport.mimes' => 'Format file harus berupa xlsx atau xls'
         ]);        
 
-        try {
-            Excel::import(new EmployeesImport, $this->fileImport->getRealPath());
-        } catch (\Exception $e) {
-            $this->dispatchBrowserEvent($this->closeModalImport());
-            session()->flash('error', 'Pastikan isian Excel yang diupload sesuai format!');
-            return;
-        }
+        Excel::import(new EmployeesImport, $this->fileImport->getRealPath());
+        // try {
+        // } catch (\Exception $e) {
+        //     $this->dispatchBrowserEvent($this->closeModalImport());
+        //     session()->flash('error', 'Pastikan isian Excel yang diupload sesuai format!');
+        //     return;
+        // }
 
         session()->flash('success', 'Data berhasil diimport.');
 
